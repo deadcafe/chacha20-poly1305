@@ -15,6 +15,9 @@ struct test_vector_s {
         const uint8_t *N;
         size_t         Nlen;
 
+        const uint8_t *A;
+        size_t         Alen;
+
         /* text */
         const uint8_t *P;
         const uint8_t *C;
@@ -37,6 +40,9 @@ static const uint8_t Key_chacha[] = {
 static const uint8_t Nonce_chacha[] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4a,
         0x00, 0x00, 0x00, 0x00,
+};
+
+static const uint8_t Aad_chacha[] = {
 };
 
 static const uint8_t Plain_chacha[] = {
@@ -79,7 +85,8 @@ static const uint8_t Cipher_chacha[] = {
 #endif
 };
 
-static const uint8_t Tag_chacha[] = {};
+static const uint8_t Tag_chacha[] = {
+};
 
 
 /*
@@ -93,6 +100,9 @@ static const uint8_t Key_poly[] = {
 };
 
 static const uint8_t Nonce_poly[] = {
+};
+
+static const uint8_t Aad_poly[] = {
 };
 
 static const uint8_t Plain_poly[] = {
@@ -111,14 +121,73 @@ static const uint8_t Tag_poly[] = {
         0xc2, 0x2b, 0x8b, 0xaf, 0x0c, 0x01, 0x27, 0xa9,
 };
 
+/*
+ * chacha20-poly1305
+ */
+static const uint8_t Key_chachapoly[] = {
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+        0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+        0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+        0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f,
+};
 
+static const uint8_t Nonce_chachapoly[] = {
+        0x07, 0x00, 0x00, 0x00, 0x40, 0x41, 0x42, 0x43,
+        0x44, 0x45, 0x46, 0x47,
+};
 
+static const uint8_t Aad_chachapoly[] = {
+        0x50, 0x51, 0x52, 0x53, 0xc0, 0xc1, 0xc2, 0xc3,
+        0xc4, 0xc5, 0xc6, 0xc7,
+};
+
+static const uint8_t Plain_chachapoly[] = {
+        0x4c, 0x61, 0x64, 0x69, 0x65, 0x73, 0x20, 0x61,
+        0x6e, 0x64, 0x20, 0x47, 0x65, 0x6e, 0x74, 0x6c,
+        0x65, 0x6d, 0x65, 0x6e, 0x20, 0x6f, 0x66, 0x20,
+        0x74, 0x68, 0x65, 0x20, 0x63, 0x6c, 0x61, 0x73,
+        0x73, 0x20, 0x6f, 0x66, 0x20, 0x27, 0x39, 0x39,
+        0x3a, 0x20, 0x49, 0x66, 0x20, 0x49, 0x20, 0x63,
+        0x6f, 0x75, 0x6c, 0x64, 0x20, 0x6f, 0x66, 0x66,
+        0x65, 0x72, 0x20, 0x79, 0x6f, 0x75, 0x20, 0x6f,
+        0x6e, 0x6c, 0x79, 0x20, 0x6f, 0x6e, 0x65, 0x20,
+        0x74, 0x69, 0x70, 0x20, 0x66, 0x6f, 0x72, 0x20,
+        0x74, 0x68, 0x65, 0x20, 0x66, 0x75, 0x74, 0x75,
+        0x72, 0x65, 0x2c, 0x20, 0x73, 0x75, 0x6e, 0x73,
+        0x63, 0x72, 0x65, 0x65, 0x6e, 0x20, 0x77, 0x6f,
+        0x75, 0x6c, 0x64, 0x20, 0x62, 0x65, 0x20, 0x69,
+        0x74, 0x2e,
+};
+
+static const uint8_t Cipher_chachapoly[] = {
+        0xd3, 0x1a, 0x8d, 0x34, 0x64, 0x8e, 0x60, 0xdb,
+        0x7b, 0x86, 0xaf, 0xbc, 0x53, 0xef, 0x7e, 0xc2,
+        0xa4, 0xad, 0xed, 0x51, 0x29, 0x6e, 0x08, 0xfe,
+        0xa9, 0xe2, 0xb5, 0xa7, 0x36, 0xee, 0x62, 0xd6,
+        0x3d, 0xbe, 0xa4, 0x5e, 0x8c, 0xa9, 0x67, 0x12,
+        0x82, 0xfa, 0xfb, 0x69, 0xda, 0x92, 0x72, 0x8b,
+        0x1a, 0x71, 0xde, 0x0a, 0x9e, 0x06, 0x0b, 0x29,
+        0x05, 0xd6, 0xa5, 0xb6, 0x7e, 0xcd, 0x3b, 0x36,
+        0x92, 0xdd, 0xbd, 0x7f, 0x2d, 0x77, 0x8b, 0x8c,
+        0x98, 0x03, 0xae, 0xe3, 0x28, 0x09, 0x1b, 0x58,
+        0xfa, 0xb3, 0x24, 0xe4, 0xfa, 0xd6, 0x75, 0x94,
+        0x55, 0x85, 0x80, 0x8b, 0x48, 0x31, 0xd7, 0xbc,
+        0x3f, 0xf4, 0xde, 0xf0, 0x8e, 0x4b, 0x7a, 0x9d,
+        0xe5, 0x76, 0xd2, 0x65, 0x86, 0xce, 0xc6, 0x4b,
+        0x61, 0x16,
+};
+
+static const uint8_t Tag_chachapoly[] = {
+        0x1a, 0xe1, 0x0b, 0x59, 0x4f, 0x09, 0xe2, 0x6a,
+        0x7e, 0x90, 0x2e, 0xcb, 0xd0, 0x60, 0x06, 0x91,
+};
 
 
 #define VECTOR(X)                                               \
         {                                                       \
                 Key_##X,sizeof(Key_##X),                        \
                 (Nonce_##X),sizeof(Nonce_##X),                  \
+                (Aad_##X),sizeof(Aad_##X),                      \
                 Plain_##X,Cipher_##X,sizeof(Plain_##X),         \
                 Tag_##X,sizeof(Tag_##X),                        \
         }
@@ -127,54 +196,16 @@ static const uint8_t Tag_poly[] = {
 static const struct test_vector_s test_vectores[] = {
         VECTOR(chacha),
         VECTOR(poly),
+        VECTOR(chachapoly),
 };
 
 
-static void
-test_chacha(const struct test_vector_s *vec)
-{
-        uint8_t cipher[vec->Plen];
-        uint8_t plain[vec->Plen];
 
-        memset(cipher, 0, sizeof(cipher));
 
-        chacha20(cipher, vec->P, vec->Plen, vec->K, vec->N, 1);
-        chacha20(plain,  cipher, vec->Plen, vec->K, vec->N, 1);
 
-        if (memcmp(plain, vec->P, vec->Plen)) {
-                fprintf(stderr, "failed decryption\n");
-
-                hexdump("Plain",   vec->P, vec->Plen);
-                hexdump("decrypt", plain, vec->Plen);
-        } else {
-                fprintf(stderr, "success decryption\n");
-        }
-
-        if (memcmp(cipher, vec->C, vec->Plen)) {
-                fprintf(stderr, "mismatched\n");
-
-                hexdump("Target", cipher, vec->Plen);
-                hexdump("Cipher", vec->C, vec->Plen);
-                hexdump("Plain",  vec->P, vec->Plen);
-        } else
-                fprintf(stderr, "matched\n");
-}
-
-static void
-test_poly(const struct test_vector_s *vec)
-{
-        uint8_t mac[16];
-
-        poly1305(mac, vec->P, vec->Plen, vec->K);
-
-        if (memcmp(mac, vec->T, 16))
-                fprintf(stderr, "poly: mismatched\n");
-        else
-                fprintf(stderr, "poly: matched\n");
-
-        hexdump("Mac", mac, 16);
-}
-
+/*******************************************************************************
+ *
+ *******************************************************************************/
 struct chacha20_poly1305_ctx {
         uint32_t chacha20_state[16];
         struct poly1305_state_s poly1305_state;
@@ -187,6 +218,7 @@ init_poly1305(struct chacha20_poly1305_ctx *ctx)
         uint8_t key[POLY1305_KEYLEN];
 
         chacha20_block(key, zero, sizeof(key), ctx->chacha20_state);
+        hexdump("poly key", key, sizeof(key));
         poly1305_init(&ctx->poly1305_state, key);
 }
 
@@ -213,7 +245,13 @@ chacha20_poly1305_enc(const uint8_t key[CHACHA_KEYLEN],
                       key,
                       nonce,
                       0);
+
+        hexdump("after chacha init",
+                ctx.chacha20_state, sizeof(ctx.chacha20_state));
+        
         init_poly1305(&ctx);
+        hexdump("after poly init",
+                &ctx.poly1305_state, sizeof(ctx.poly1305_state));
 
         if (aad_len >= POLY1305_BLOCK_SIZE) {
                 poly1305_update(&ctx.poly1305_state,
@@ -261,11 +299,86 @@ chacha20_poly1305_enc(const uint8_t key[CHACHA_KEYLEN],
         poly1305_finish(&ctx.poly1305_state, tag);
 }
 
+/*******************************************************************************
+ *
+ *******************************************************************************/
+static void
+test_chacha(const struct test_vector_s *vec)
+{
+        uint8_t cipher[vec->Plen];
+        uint8_t plain[vec->Plen];
+
+        memset(cipher, 0, sizeof(cipher));
+
+        chacha20(cipher, vec->P, vec->Plen, vec->K, vec->N, 1);
+        chacha20(plain,  cipher, vec->Plen, vec->K, vec->N, 1);
+
+        if (memcmp(plain, vec->P, vec->Plen)) {
+                fprintf(stderr, "failed decryption\n");
+
+                hexdump("Plain",   vec->P, vec->Plen);
+                hexdump("decrypt", plain, vec->Plen);
+        } else {
+                fprintf(stderr, "success decryption\n");
+        }
+
+        if (memcmp(cipher, vec->C, vec->Plen)) {
+                fprintf(stderr, "mismatched\n");
+
+                hexdump("Target", cipher, vec->Plen);
+                hexdump("Cipher", vec->C, vec->Plen);
+                hexdump("Plain",  vec->P, vec->Plen);
+        } else
+                fprintf(stderr, "matched\n");
+}
+
+static void
+test_poly(const struct test_vector_s *vec)
+{
+        uint8_t mac[16];
+
+        poly1305(mac, vec->P, vec->Plen, vec->K);
+
+        if (memcmp(mac, vec->T, 16))
+                fprintf(stderr, "poly: mismatched\n");
+        else
+                fprintf(stderr, "poly: matched\n");
+
+        hexdump("Mac", mac, 16);
+}
+
+static void
+test_chachapoly(const struct test_vector_s *vec)
+{
+        uint8_t cipher[vec->Plen];
+        uint8_t mac[16];
+
+        chacha20_poly1305_enc(vec->K,
+                              vec->N,
+                              cipher,
+                              vec->P, vec->Plen,
+                              vec->A, vec->Alen,
+                              mac);
+        if (memcmp(cipher, vec->C, vec->Plen))
+                fprintf(stderr, "mismatched cipher\n");
+        else
+                fprintf(stderr, "matched cipher\n");
+
+        if (memcmp(mac, vec->T, 16))
+                fprintf(stderr, "mismatched mac\n");
+        else
+                fprintf(stderr, "matched mac\n");
+}
+
+/*******************************************************************************
+ *
+ *******************************************************************************/
 int
 main(void)
 {
         test_chacha(&test_vectores[0]);
         test_poly(&test_vectores[1]);
+        test_chachapoly(&test_vectores[2]);
 
         return 0;
 }
