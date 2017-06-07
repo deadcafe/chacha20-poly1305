@@ -1,0 +1,12 @@
+.*
+!.gitignore
+*.o
+*.a
+*.so
+*~
+tmp/
+objs/
+GPATH
+GRTAGS
+GTAGS
+HTML/

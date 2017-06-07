@@ -1,0 +1,6 @@
+[submodule "poly1305-donna"]
+	path = poly1305-donna
+	url = git@github.com:floodyberry/poly1305-donna.git
+[submodule "chacha-opt"]
+	path = chacha-opt
+	url = git@github.com:floodyberry/chacha-opt.git
