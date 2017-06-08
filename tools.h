@@ -5,8 +5,8 @@
 #include <stdio.h>
 
 static inline void
-dump_state(const char *msg,
-           const uint32_t *state)
+_dump_state(const char *msg,
+            const uint32_t *state)
 {
         fprintf(stderr, "%s\n", msg);
         for (unsigned i = 0; i < 16; i += 4) {
@@ -19,9 +19,9 @@ dump_state(const char *msg,
 }
 
 static inline void
-hexdump(const char *msg,
-        const void *p,
-        size_t len)
+_hexdump(const char *msg,
+         const void *p,
+         size_t len)
 {
         unsigned int i, out, ofs;
         const unsigned char *data = p;
@@ -48,5 +48,13 @@ hexdump(const char *msg,
                 fprintf(stderr, "%s\n", line);
         }
 }
+
+#if defined(DEBUG)
+# define HEXDUMP(m,p,l)	_hexdump(m,p,l)
+# define DUMP_STATE(m,x) _dump_state(m,x)
+#else
+# define HEXDUMP(m,p,l)
+# define DUMP_STATE(m,x)
+#endif
 
 #endif /* TOOLS_H */

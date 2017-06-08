@@ -5,6 +5,11 @@
 #include "chacha20.h"
 #include "tools.h"
 
+#if defined(DEBUG)
+# define DUMP_STATE(m,x)	dump_state(m,x)
+#else
+# define DUMP_STATE(m,x)
+#endif
 
 #define U8V(v)  ((uint8_t)  (v) & UINT8_C(0xFF))
 #define U32V(v) ((uint32_t) (v) & UINT32_C(0xFFFFFFFF))
@@ -94,12 +99,12 @@ chacha_rounds(uint8_t output[64],
 
         for (i = 0; i < 16; ++i)
                 x[i] = PLUS(x[i], input[i]);
-        dump_state("ChaChaCore 20 rounds", x);
+        DUMP_STATE("ChaChaCore 20 rounds", x);
 
         for (i = 0; i < 16; ++i)
                 U32TO8_LE(output + 4 * i, x[i]);
 
-        dump_state("ChaChaCore final", (const uint32_t *) output);
+        DUMP_STATE("ChaChaCore final", (const uint32_t *) output);
 }
 
 static inline void
@@ -129,35 +134,35 @@ chacha_init(uint32_t state[16],
 }
 
 void
-chacha20_init(uint32_t state[16],
-              const uint8_t key[CHACHA_KEYLEN],
+chacha20_init(const struct chacha20_key_s *key,
+              struct chacha20_ctx_s *ctx,
               const uint8_t nonce[CHACHA_NONCELEN],
               uint32_t counter)
 {
-        chacha_init(state, key, nonce, counter);
+        chacha_init(ctx->state, key->val, nonce, counter);
 }
 
 
 void
-chacha20_block(uint8_t *out,
+chacha20_block(struct chacha20_ctx_s *ctx,
+               uint8_t *out,
                const uint8_t *in,
-               unsigned inLen,
-               uint32_t state[16])
+               unsigned inLen)
 {
         uint8_t block[CHACHA_BLOCKLEN] __attribute__((aligned(64)));
 
-        chacha_rounds(block, state, 20);
+        chacha_rounds(block, ctx->state, 20);
         for (unsigned i = 0; i < inLen; i++)
                 out[i] = in[i] ^ block[i];
 
-        state[12]++;
+        ctx->state[12]++;
 }
 
 void
-chacha20(uint8_t *out,
+chacha20(const struct chacha20_key_s *key,
+         uint8_t *out,
          const uint8_t *in,
          unsigned inLen,
-         const uint8_t key[CHACHA_KEYLEN],
          const uint8_t nonce[CHACHA_NONCELEN],
          uint32_t counter)
 {
@@ -165,10 +170,7 @@ chacha20(uint8_t *out,
         uint32_t state[16] __attribute__((aligned(64)));
         unsigned i;
 
-        fprintf(stderr, "%s: out:%p in:%p len:%u counter:%u\n",
-                __func__, out, in, inLen, counter);
-
-        chacha_init(state, key, nonce, counter);
+        chacha_init(state, key->val, nonce, counter);
 
         while (inLen >= CHACHA_BLOCKLEN) {
                 chacha_rounds(block, state, 20);

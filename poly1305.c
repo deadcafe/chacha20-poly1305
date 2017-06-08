@@ -26,15 +26,15 @@
 
 
 void
-poly1305_init(struct poly1305_state_s *st,
-              const uint8_t key[POLY1305_KEYLEN])
+poly1305_init(const struct poly1305_key_s *key,
+              struct poly1305_ctx_s *st)
 {
         /* r &= 0xffffffc0ffffffc0ffffffc0fffffff */
-        st->r[0] = (U8TO32_LE(&key[ 0])     ) & UINT32_C(0x3ffffff);
-        st->r[1] = (U8TO32_LE(&key[ 3]) >> 2) & UINT32_C(0x3ffff03);
-        st->r[2] = (U8TO32_LE(&key[ 6]) >> 4) & UINT32_C(0x3ffc0ff);
-        st->r[3] = (U8TO32_LE(&key[ 9]) >> 6) & UINT32_C(0x3f03fff);
-        st->r[4] = (U8TO32_LE(&key[12]) >> 8) & UINT32_C(0x00fffff);
+        st->r[0] = (U8TO32_LE(&key->val[ 0])     ) & UINT32_C(0x3ffffff);
+        st->r[1] = (U8TO32_LE(&key->val[ 3]) >> 2) & UINT32_C(0x3ffff03);
+        st->r[2] = (U8TO32_LE(&key->val[ 6]) >> 4) & UINT32_C(0x3ffc0ff);
+        st->r[3] = (U8TO32_LE(&key->val[ 9]) >> 6) & UINT32_C(0x3f03fff);
+        st->r[4] = (U8TO32_LE(&key->val[12]) >> 8) & UINT32_C(0x00fffff);
 
         /* h = 0 */
         st->h[0] = 0;
@@ -44,17 +44,17 @@ poly1305_init(struct poly1305_state_s *st,
         st->h[4] = 0;
 
         /* save pad for later */
-        st->pad[0] = U8TO32_LE(&key[16]);
-        st->pad[1] = U8TO32_LE(&key[20]);
-        st->pad[2] = U8TO32_LE(&key[24]);
-        st->pad[3] = U8TO32_LE(&key[28]);
+        st->pad[0] = U8TO32_LE(&key->val[16]);
+        st->pad[1] = U8TO32_LE(&key->val[20]);
+        st->pad[2] = U8TO32_LE(&key->val[24]);
+        st->pad[3] = U8TO32_LE(&key->val[28]);
 
         st->leftover = 0;
         st->final = 0;
 }
 
 static inline void
-poly1305_blocks(struct poly1305_state_s *st,
+poly1305_blocks(struct poly1305_ctx_s *st,
                 const uint8_t *m,
                 unsigned bytes)
 {
@@ -145,13 +145,13 @@ poly1305_blocks(struct poly1305_state_s *st,
 #define MEMCPY(_d,_s,_l)	memcpy((_d), (_s), (_l))
 
 void
-poly1305_update(struct poly1305_state_s *st,
+poly1305_update(struct poly1305_ctx_s *st,
                 const uint8_t *m,
                 unsigned bytes)
 {
         unsigned i;
 
-        hexdump("poly1305_update", m, bytes);
+        HEXDUMP("poly1305_update", m, bytes);
 
         /* handle leftover */
         if (st->leftover) {
@@ -187,7 +187,7 @@ poly1305_update(struct poly1305_state_s *st,
 }
 
 void
-poly1305_finish(struct poly1305_state_s *st,
+poly1305_finish(struct poly1305_ctx_s *st,
                 unsigned char mac[POLY1305_TAGLEN])
 {
         uint32_t h[5];
@@ -261,14 +261,14 @@ poly1305_finish(struct poly1305_state_s *st,
 }
 
 void
-poly1305(uint8_t mac[POLY1305_TAGLEN],
+poly1305(const struct poly1305_key_s *key,
+         uint8_t mac[POLY1305_TAGLEN],
          const uint8_t *m,
-         unsigned bytes,
-         const uint8_t key[POLY1305_KEYLEN])
+         unsigned bytes)
 {
-        struct poly1305_state_s state __attribute__((aligned(64)));
+        struct poly1305_ctx_s ctx __attribute__((aligned(64)));
 
-        poly1305_init(&state, key);
-        poly1305_update(&state, m, bytes);
-        poly1305_finish(&state, mac);
+        poly1305_init(key, &ctx);
+        poly1305_update(&ctx, m, bytes);
+        poly1305_finish(&ctx, mac);
 }

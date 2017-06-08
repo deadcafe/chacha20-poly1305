@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <x86intrin.h>
 
 #include "chacha20_poly1305.h"
 #include "tools.h"
@@ -183,6 +184,60 @@ static const uint8_t Tag_chachapoly[] = {
 };
 
 
+/*
+ * rfc7634
+ */
+static const uint8_t Key_rfc7634[] = {
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+        0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+        0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+        0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f,
+};
+
+static const uint8_t Nonce_rfc7634[] = {
+        0xa0, 0xa1, 0xa2, 0xa3, 0x10, 0x11, 0x12, 0x13,
+        0x14, 0x15, 0x16, 0x17,
+};
+
+static const uint8_t Aad_rfc7634[] = {
+        0x01, 0x02, 0x03, 0x04, 0x00, 0x00, 0x00, 0x05,
+};
+
+static const uint8_t Plain_rfc7634[] = {
+        0x45, 0x00, 0x00, 0x54, 0xa6, 0xf2, 0x00, 0x00,
+        0x40, 0x01, 0xe7, 0x78, 0xc6, 0x33, 0x64, 0x05,
+        0xc0, 0x00, 0x02, 0x05, 0x08, 0x00, 0x5b, 0x7a,
+        0x3a, 0x08, 0x00, 0x00, 0x55, 0x3b, 0xec, 0x10,
+        0x00, 0x07, 0x36, 0x27, 0x08, 0x09, 0x0a, 0x0b,
+        0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
+        0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+        0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23,
+        0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+        0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33,
+        0x34, 0x35, 0x36, 0x37, 0x01, 0x02, 0x02, 0x04,
+};
+
+static const uint8_t Cipher_rfc7634[] = {
+        0x24, 0x03, 0x94, 0x28, 0xb9, 0x7f, 0x41, 0x7e,
+        0x3c, 0x13, 0x75, 0x3a, 0x4f, 0x05, 0x08, 0x7b,
+        0x67, 0xc3, 0x52, 0xe6, 0xa7, 0xfa, 0xb1, 0xb9,
+        0x82, 0xd4, 0x66, 0xef, 0x40, 0x7a, 0xe5, 0xc6,
+        0x14, 0xee, 0x80, 0x99, 0xd5, 0x28, 0x44, 0xeb,
+        0x61, 0xaa, 0x95, 0xdf, 0xab, 0x4c, 0x02, 0xf7,
+        0x2a, 0xa7, 0x1e, 0x7c, 0x4c, 0x4f, 0x64, 0xc9,
+        0xbe, 0xfe, 0x2f, 0xac, 0xc6, 0x38, 0xe8, 0xf3,
+        0xcb, 0xec, 0x16, 0x3f, 0xac, 0x46, 0x9b, 0x50,
+        0x27, 0x73, 0xf6, 0xfb, 0x94, 0xe6, 0x64, 0xda,
+        0x91, 0x65, 0xb8, 0x28, 0x29, 0xf6, 0x41, 0xe0,
+};
+
+static const uint8_t Tag_rfc7634[] = {
+        0x76, 0xaa, 0xa8, 0x26, 0x6b, 0x7f, 0xb0, 0xf7,
+        0xb1, 0x1b, 0x36, 0x99, 0x07, 0xe1, 0xad, 0x43,
+};
+
+
+
 #define VECTOR(X)                                               \
         {                                                       \
                 Key_##X,sizeof(Key_##X),                        \
@@ -197,6 +252,7 @@ static const struct test_vector_s test_vectores[] = {
         VECTOR(chacha),
         VECTOR(poly),
         VECTOR(chachapoly),
+        VECTOR(rfc7634),
 };
 
 
@@ -218,26 +274,18 @@ test_chacha(const struct test_vector_s *vec)
 
         memset(cipher, 0, sizeof(cipher));
 
-        chacha20(cipher, vec->P, vec->Plen, vec->K, vec->N, 1);
-        chacha20(plain,  cipher, vec->Plen, vec->K, vec->N, 1);
+        chacha20((const struct chacha20_key_s *) (vec->K), cipher, vec->P, vec->Plen,  vec->N, 1);
+        chacha20((const struct chacha20_key_s *) (vec->K), plain,  cipher, vec->Plen, vec->N, 1);
 
         if (memcmp(plain, vec->P, vec->Plen)) {
-                fprintf(stderr, "failed decryption\n");
-
-                hexdump("Plain",   vec->P, vec->Plen);
-                hexdump("decrypt", plain, vec->Plen);
-        } else {
-                fprintf(stderr, "success decryption\n");
+                HEXDUMP("failed decryption Plain",   vec->P, vec->Plen);
         }
 
         if (memcmp(cipher, vec->C, vec->Plen)) {
                 fprintf(stderr, "mismatched\n");
 
-                hexdump("Target", cipher, vec->Plen);
-                hexdump("Cipher", vec->C, vec->Plen);
-                hexdump("Plain",  vec->P, vec->Plen);
-        } else
-                fprintf(stderr, "matched\n");
+                HEXDUMP("mismatched Cipher", cipher, vec->Plen);
+        }
 }
 
 static void
@@ -245,14 +293,11 @@ test_poly(const struct test_vector_s *vec)
 {
         uint8_t mac[16];
 
-        poly1305(mac, vec->P, vec->Plen, vec->K);
+        poly1305((const struct poly1305_key_s *) (vec->K), mac, vec->P, vec->Plen);
 
-        if (memcmp(mac, vec->T, 16))
-                fprintf(stderr, "poly: mismatched\n");
-        else
-                fprintf(stderr, "poly: matched\n");
-
-        hexdump("Mac", mac, 16);
+        if (memcmp(mac, vec->T, 16)) {
+                HEXDUMP("poly: mismatched Mac", mac, 16);
+        }
 }
 
 static void
@@ -261,22 +306,73 @@ test_chachapoly(const struct test_vector_s *vec)
         uint8_t cipher[vec->Plen];
         uint8_t mac[16];
 
-        aead_chacha20_poly1305(vec->K,
-                               CIPHER_DIR_ENCRYPT,
-                               vec->N,
-                               cipher,
-                               vec->P, vec->Plen,
-                               vec->A, vec->Alen,
-                               mac);
-        if (memcmp(cipher, vec->C, vec->Plen))
-                fprintf(stderr, "mismatched cipher\n");
-        else
-                fprintf(stderr, "matched cipher\n");
+        aead_chacha20_poly1305_enc((const struct chacha20_key_s *) (vec->K),
+                                   vec->N,
+                                   cipher,
+                                   vec->P, vec->Plen,
+                                   vec->A, vec->Alen,
+                                   mac);
+        if (memcmp(cipher, vec->C, vec->Plen)) {
+                HEXDUMP("mismatched cipher", cipher, vec->Plen);
+        }
 
-        if (memcmp(mac, vec->T, 16))
-                fprintf(stderr, "mismatched mac\n");
-        else
-                fprintf(stderr, "matched mac\n");
+        if (memcmp(mac, vec->T, 16)) {
+                HEXDUMP("mismatched mac", mac, 16);
+        }
+
+        if (aead_chacha20_poly1305_dec((const struct chacha20_key_s *) (vec->K),
+                                       vec->N,
+                                       cipher,
+                                       cipher, vec->Plen,
+                                       vec->A, vec->Alen,
+                                       mac)) {
+                fprintf(stderr, "verify NG\n");
+        } else if (memcmp(cipher, vec->P, vec->Plen)) {
+                HEXDUMP("mismatched plain", cipher, vec->Plen);
+        }
+}
+
+static void
+test_perf(void)
+{
+        uint8_t *p;
+        struct chacha20_key_s key;
+        uint8_t nonce[CHACHA_NONCELEN];
+        uint8_t aad[12];
+        uint8_t tag[POLY1305_TAGLEN];
+
+        p = malloc(64 * 1024 * 1024);
+        if (p) {
+                uint32_t aux;
+                uint64_t time = __rdtscp(&aux);
+                size_t sum = 0;
+                unsigned cnt = 0;
+
+                for (unsigned len = 16; len < 1505; len += 16) {
+                        for (unsigned i = 0;
+                             i < (64 * 1024 * 1024) - 4096;
+                             i += 4096) {
+
+                                cnt += 1;
+                                sum += len;
+
+                                aead_chacha20_poly1305_enc(&key,
+                                                           nonce,
+                                                           &p[i],
+                                                           &p[i],
+                                                           len,
+                                                           aad,
+                                                           12,
+                                                           tag);
+                        }
+                }
+
+                time = __rdtscp(&aux) - time;
+                free(p);
+                fprintf(stderr, "%f cycles/packet  %f cycles/byte\n",
+                        (double) time / cnt,
+                        (double) time / sum);
+        }
 }
 
 /******************************************************************************
@@ -287,10 +383,8 @@ main(void)
 {
         test_chacha(&test_vectores[0]);
         test_poly(&test_vectores[1]);
-
-
-        fprintf(stderr, "\n\n");
         test_chachapoly(&test_vectores[2]);
-
+        test_chachapoly(&test_vectores[3]);
+        test_perf();
         return 0;
 }
