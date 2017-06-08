@@ -5,12 +5,6 @@
 #include "chacha20.h"
 #include "tools.h"
 
-#if defined(DEBUG)
-# define DUMP_STATE(m,x)	dump_state(m,x)
-#else
-# define DUMP_STATE(m,x)
-#endif
-
 #define U8V(v)  ((uint8_t)  (v) & UINT8_C(0xFF))
 #define U32V(v) ((uint32_t) (v) & UINT32_C(0xFFFFFFFF))
 

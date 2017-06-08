@@ -46,6 +46,10 @@ CFLAGS := \
         -Wfloat-equal -Wpointer-arith \
         -Wtrampolines -Wtrampolines
 
+ifeq ($(DEBUG),y)
+CPPFLAGS += -DDEBUG
+endif
+
 #-Wconversion -Wno-sign-conversion
 
 SRCS = $(wildcard *.c)

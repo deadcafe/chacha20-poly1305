@@ -61,7 +61,7 @@ aead_chacha20_poly1305_enc(const struct chacha20_key_s *chacha20_key,
                            unsigned aad_len,
                            uint8_t tag[POLY1305_TAGLEN])
 {
-        struct chacha20_poly1305_ctx_s ctx __attribute__((aligned(64)));
+        struct chacha20_poly1305_ctx_s ctx __attribute__((aligned(16)));
         struct {
                 uint64_t aad_octets;
                 uint64_t ciphertext_octets;
@@ -108,7 +108,7 @@ aead_chacha20_poly1305_dec(const struct chacha20_key_s *chacha20_key,
                            unsigned aad_len,
                            const uint8_t enc_tag[POLY1305_TAGLEN])
 {
-        struct chacha20_poly1305_ctx_s ctx __attribute__((aligned(64)));
+        struct chacha20_poly1305_ctx_s ctx __attribute__((aligned(16)));
         uint8_t tag[POLY1305_TAGLEN] __attribute__((aligned(16)));
         struct {
                 uint64_t aad_octets;

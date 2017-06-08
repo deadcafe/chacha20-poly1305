@@ -332,7 +332,7 @@ test_chachapoly(const struct test_vector_s *vec)
         }
 }
 
-static void
+static inline void
 test_perf(void)
 {
         uint8_t *p;
@@ -381,10 +381,20 @@ test_perf(void)
 int
 main(void)
 {
+        fprintf(stderr, "size chacha_key:%zu chacha_ctx:%zu poly_key:%zu poly_ctx:%zu\n",
+                sizeof(struct chacha20_key_s),
+                sizeof(struct chacha20_ctx_s),
+                sizeof(struct poly1305_key_s),
+                sizeof(struct poly1305_ctx_s));
+
         test_chacha(&test_vectores[0]);
         test_poly(&test_vectores[1]);
         test_chachapoly(&test_vectores[2]);
         test_chachapoly(&test_vectores[3]);
+
+#if !defined(DEBUG)
         test_perf();
+#endif
+
         return 0;
 }

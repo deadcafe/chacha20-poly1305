@@ -1,6 +1,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "poly1305.h"
 #include "tools.h"
@@ -50,15 +51,17 @@ poly1305_init(const struct poly1305_key_s *key,
         st->pad[3] = U8TO32_LE(&key->val[28]);
 
         st->leftover = 0;
-        st->final = 0;
 }
+
+#define HIBIT_CONTINUE	(1u << 24)
+#define HIBIT_FINAL	0
 
 static inline void
 poly1305_blocks(struct poly1305_ctx_s *st,
                 const uint8_t *m,
-                unsigned bytes)
+                unsigned bytes,
+                const uint32_t hibit)
 {
-        const uint32_t hibit = (st->final) ? 0 : (1u << 24); /* 1 << 128 */
         uint32_t r[5];
         uint32_t h[5];
         uint32_t s[5];	/* s[0]: unused */
@@ -166,7 +169,7 @@ poly1305_update(struct poly1305_ctx_s *st,
                 st->leftover += want;
                 if (st->leftover < POLY1305_BLOCK_SIZE)
                         return;
-                poly1305_blocks(st, st->buffer, POLY1305_BLOCK_SIZE);
+                poly1305_blocks(st, st->buffer, POLY1305_BLOCK_SIZE, HIBIT_CONTINUE);
                 st->leftover = 0;
         }
 
@@ -174,7 +177,7 @@ poly1305_update(struct poly1305_ctx_s *st,
         if (bytes >= POLY1305_BLOCK_SIZE) {
                 unsigned want = (bytes & ~(POLY1305_BLOCK_SIZE - 1));
 
-                poly1305_blocks(st, m, want);
+                poly1305_blocks(st, m, want, HIBIT_CONTINUE);
                 m += want;
                 bytes -= want;
         }
@@ -203,8 +206,7 @@ poly1305_finish(struct poly1305_ctx_s *st,
                 for (; i < POLY1305_BLOCK_SIZE; i++)
                         st->buffer[i] = 0;
 
-                st->final = 1;
-                poly1305_blocks(st, st->buffer, POLY1305_BLOCK_SIZE);
+                poly1305_blocks(st, st->buffer, POLY1305_BLOCK_SIZE, HIBIT_FINAL);
         }
 
         /* fully carry h */

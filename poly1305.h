@@ -16,8 +16,8 @@ struct poly1305_ctx_s {
         uint32_t r[5];
         uint32_t h[5];
         uint32_t pad[4];
-        unsigned final;
-        unsigned leftover;
+        uint32_t leftover;
+        uint32_t reserved;
         uint8_t buffer[POLY1305_BLOCK_SIZE];
 };
 
