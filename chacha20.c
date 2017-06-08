@@ -1,14 +1,9 @@
-/*
-chacha-merged.c version 20080118
-D. J. Bernstein
-Public domain.
-*/
-
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
-#include "chacha.h"
+#include "chacha20.h"
+#include "tools.h"
 
 
 #define U8V(v)  ((uint8_t)  (v) & UINT8_C(0xFF))

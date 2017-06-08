@@ -1,23 +1,8 @@
-/* $OpenBSD: chacha.h,v 1.4 2016/08/27 04:04:56 guenther Exp $ */
+#ifndef TOOLS_H
+#define TOOLS_H
 
-/*
-chacha-merged.c version 20080118
-D. J. Bernstein
-Public domain.
-*/
-
-#ifndef CHACHA_H
-#define CHACHA_H
-
-#include <sys/types.h>
 #include <stdint.h>
 #include <stdio.h>
-
-#define CHACHA_KEYLEN 	        32
-#define CHACHA_NONCELEN		12
-#define CHACHA_CTRLEN		4
-#define CHACHA_STATELEN		(CHACHA_NONCELEN + CHACHA_CTRLEN)
-#define CHACHA_BLOCKLEN		64
 
 static inline void
 dump_state(const char *msg,
@@ -64,23 +49,4 @@ hexdump(const char *msg,
         }
 }
 
-
-extern void chacha20(uint8_t *out,
-                     const uint8_t *in,
-                     unsigned inLen,
-                     const uint8_t key[CHACHA_KEYLEN],
-                     const uint8_t nonce[CHACHA_NONCELEN],
-                     uint32_t counter);
-
-extern void chacha20_init(uint32_t state[16],
-                          const uint8_t key[CHACHA_KEYLEN],
-                          const uint8_t nonce[CHACHA_NONCELEN],
-                          uint32_t counter);
-extern void chacha20_block(uint8_t *out,
-                           const uint8_t *in,
-                           unsigned inLen,
-                           uint32_t state[16]);
-
-
-#endif	/* CHACHA_H */
-
+#endif /* TOOLS_H */

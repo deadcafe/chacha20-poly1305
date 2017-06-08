@@ -1,15 +1,9 @@
-/*
- * Public Domain poly1305 from Andrew Moon
- * poly1305-donna-unrolled.c from https://github.com/floodyberry/poly1305-donna
- */
 
-/* $OpenBSD: poly1305.c,v 1.3 2013/12/19 22:57:13 djm Exp $ */
-
-#include <sys/types.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "poly1305.h"
+#include "tools.h"
 
 #define mul32x32_64(a,b) ((uint64_t) (a) * (b))
 
