@@ -13,12 +13,20 @@ struct poly1305_key_s {
 };
 
 struct poly1305_ctx_s {
-        uint32_t r[5];
-        uint32_t h[5];
-        uint32_t pad[4];
-        uint32_t leftover;
-        uint32_t reserved;
+        union {
+                struct {
+                        uint32_t r32[5];
+                        uint32_t h32[5];
+                        uint32_t pad32[4];
+                };
+                struct {
+                        uint64_t r64[3];
+                        uint64_t h64[3];
+                        uint64_t pad64[2];
+                };
+        };
         uint8_t buffer[POLY1305_BLOCK_SIZE];
+        uint32_t leftover;
 };
 
 extern void poly1305_init(const struct poly1305_key_s *key,

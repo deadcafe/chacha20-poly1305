@@ -40,7 +40,7 @@ CPPFLAGS := -std=gnu99 -D_GNU_SOURCE
 LDFLAGS :=
 
 CFLAGS := \
-        -g -O3 -fPIC -fno-strict-aliasing -fno-strict-overflow -fno-tree-vrp \
+        -g -O3 -std=gnu99 -m64 -march=native -fPIC -fno-strict-aliasing -fno-strict-overflow -fno-tree-vrp \
         -Werror -Wall -Wextra \
         -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings \
         -Wfloat-equal -Wpointer-arith \
