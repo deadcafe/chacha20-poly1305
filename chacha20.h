@@ -22,12 +22,12 @@ extern void chacha20(const struct chacha20_key_s *key,
                      uint8_t *out,
                      const uint8_t *in,
                      unsigned inLen,
-                     const uint8_t nonce[CHACHA_NONCELEN],
+                     const uint8_t *nonce,
                      uint32_t counter);
 
 extern void chacha20_init(const struct chacha20_key_s *key,
                           struct chacha20_ctx_s *state,
-                          const uint8_t nonce[CHACHA_NONCELEN],
+                          const uint8_t *nonce,
                           uint32_t counter);
 
 extern void chacha20_block(struct chacha20_ctx_s *state,

@@ -191,7 +191,7 @@ poly1305_update(struct poly1305_ctx_s *st,
 
 void
 poly1305_finish(struct poly1305_ctx_s *st,
-                unsigned char mac[POLY1305_TAGLEN])
+                uint8_t *mac)
 {
         uint32_t h[5];
         uint32_t g[5];
@@ -264,7 +264,7 @@ poly1305_finish(struct poly1305_ctx_s *st,
 
 void
 poly1305(const struct poly1305_key_s *key,
-         uint8_t mac[POLY1305_TAGLEN],
+         uint8_t *mac,
          const uint8_t *m,
          unsigned bytes)
 {

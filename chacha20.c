@@ -57,8 +57,8 @@ static const struct quarter_round_s quarter_round_dic[] = {
 };
 
 static inline void
-quarter_round(uint32_t x[16],
-              const struct quarter_round_s dic[8],
+quarter_round(uint32_t *x,
+              const struct quarter_round_s *dic,
               unsigned num_rounds)
 {
         while (num_rounds) {
@@ -72,8 +72,8 @@ quarter_round(uint32_t x[16],
 }
 
 static inline void
-chacha_rounds(uint8_t output[64],
-              const uint32_t input[16],
+chacha_rounds(uint8_t *output,
+              const uint32_t *input,
               int num_rounds)
 {
         uint32_t x[16] __attribute__((aligned(64)));
@@ -102,9 +102,9 @@ chacha_rounds(uint8_t output[64],
 }
 
 static inline void
-chacha_init(uint32_t state[16],
-            const uint8_t key[CHACHA_KEYLEN],
-            const uint8_t nonce[CHACHA_NONCELEN],
+chacha_init(uint32_t *state,
+            const uint8_t *key,
+            const uint8_t *nonce,
             uint32_t counter)
 {
         static const uint8_t __attribute__((aligned(16))) SIGMA[16] = "expand 32-byte k";
@@ -130,7 +130,7 @@ chacha_init(uint32_t state[16],
 void
 chacha20_init(const struct chacha20_key_s *key,
               struct chacha20_ctx_s *ctx,
-              const uint8_t nonce[CHACHA_NONCELEN],
+              const uint8_t *nonce,
               uint32_t counter)
 {
         chacha_init(ctx->state, key->val, nonce, counter);
@@ -143,7 +143,7 @@ chacha20_block(struct chacha20_ctx_s *ctx,
                const uint8_t *in,
                unsigned inLen)
 {
-        uint8_t block[CHACHA_BLOCKLEN] __attribute__((aligned(64)));
+        uint8_t block[CHACHA_BLOCKLEN] __attribute__((aligned(16)));
 
         chacha_rounds(block, ctx->state, 20);
         for (unsigned i = 0; i < inLen; i++)
@@ -157,11 +157,11 @@ chacha20(const struct chacha20_key_s *key,
          uint8_t *out,
          const uint8_t *in,
          unsigned inLen,
-         const uint8_t nonce[CHACHA_NONCELEN],
+         const uint8_t *nonce,
          uint32_t counter)
 {
-        uint8_t block[CHACHA_BLOCKLEN] __attribute__((aligned(64)));
-        uint32_t state[16] __attribute__((aligned(64)));
+        uint8_t block[CHACHA_BLOCKLEN] __attribute__((aligned(16)));
+        uint32_t state[16] __attribute__((aligned(16)));
         unsigned i;
 
         chacha_init(state, key->val, nonce, counter);

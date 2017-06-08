@@ -29,11 +29,11 @@ extern void poly1305_update(struct poly1305_ctx_s *st,
                             unsigned bytes);
 
 extern void poly1305_finish(struct poly1305_ctx_s *st,
-                            unsigned char mac[POLY1305_TAGLEN]);
+                            unsigned char *mac);
 
 /* one-shot */
 extern void poly1305(const struct poly1305_key_s *key,
-                     uint8_t mac[POLY1305_TAGLEN],
+                     uint8_t *mac,
                      const uint8_t *m,
                      unsigned bytes);
 

@@ -12,7 +12,7 @@ struct chacha20_poly1305_ctx_s {
 static inline void
 chacha20_poly1305_init(const struct chacha20_key_s *chacha20_key,
                        struct chacha20_poly1305_ctx_s *ctx,
-                       const uint8_t nonce[CHACHA_NONCELEN])
+                       const uint8_t *nonce)
 {
         const uint8_t zero[POLY1305_KEYLEN] = { 0 };
         struct poly1305_key_s poly1305_key __attribute__((aligned(16)));
@@ -53,13 +53,13 @@ poly1305_with_pad(struct poly1305_ctx_s *ctx,
 
 int
 aead_chacha20_poly1305_enc(const struct chacha20_key_s *chacha20_key,
-                           const uint8_t nonce[CHACHA_NONCELEN],
+                           const uint8_t *nonce,
                            uint8_t *out,
                            const uint8_t *in,
                            unsigned inlen,
                            const uint8_t *aad,
                            unsigned aad_len,
-                           uint8_t tag[POLY1305_TAGLEN])
+                           uint8_t *tag)
 {
         struct chacha20_poly1305_ctx_s ctx __attribute__((aligned(16)));
         struct {
@@ -100,13 +100,13 @@ aead_chacha20_poly1305_enc(const struct chacha20_key_s *chacha20_key,
 
 int
 aead_chacha20_poly1305_dec(const struct chacha20_key_s *chacha20_key,
-                           const uint8_t nonce[CHACHA_NONCELEN],
+                           const uint8_t *nonce,
                            uint8_t *out,
                            const uint8_t *in,
                            unsigned inlen,
                            const uint8_t *aad,
                            unsigned aad_len,
-                           const uint8_t enc_tag[POLY1305_TAGLEN])
+                           const uint8_t *enc_tag)
 {
         struct chacha20_poly1305_ctx_s ctx __attribute__((aligned(16)));
         uint8_t tag[POLY1305_TAGLEN] __attribute__((aligned(16)));
