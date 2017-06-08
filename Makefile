@@ -78,4 +78,7 @@ $(OBJ_DIR):
 clean:
 	@$(RM) -rf $(OBJ_DIR) $(TARGET)
 
+html:
+	htags --suggest2
+
 -include $(DEPENDS)

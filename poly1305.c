@@ -151,6 +151,8 @@ poly1305_update(struct poly1305_state_s *st,
 {
         unsigned i;
 
+        hexdump("poly1305_update", m, bytes);
+
         /* handle leftover */
         if (st->leftover) {
                 unsigned want = (POLY1305_BLOCK_SIZE - st->leftover);

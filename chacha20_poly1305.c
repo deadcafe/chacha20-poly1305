@@ -15,21 +15,30 @@ init_poly1305(struct chacha20_poly1305_ctx *ctx)
         poly1305_init(&ctx->poly1305_state, key);
 }
 
-void
-chacha20_poly1305_enc(const uint8_t key[CHACHA_KEYLEN],
-                      const uint8_t nonce[CHACHA_NONCELEN],
-                      uint8_t *out,
-                      const uint8_t *in,
-                      unsigned inlen,
-                      const uint8_t *aad,
-                      unsigned aad_len,
-                      uint8_t tag[POLY1305_TAGLEN])
+int
+aead_chacha20_poly1305(const uint8_t key[CHACHA_KEYLEN],
+                       enum cipher_direction_e dir,
+                       const uint8_t nonce[CHACHA_NONCELEN],
+                       uint8_t *out,
+                       const uint8_t *in,
+                       unsigned inlen,
+                       const uint8_t *aad,
+                       unsigned aad_len,
+                       uint8_t tag[POLY1305_TAGLEN])
 {
         struct chacha20_poly1305_ctx ctx __attribute__((aligned(64)));
         struct {
                 uint64_t aad_octets;
                 uint64_t ciphertext_octets;
         } length;
+
+        if (dir != CIPHER_DIR_ENCRYPT)
+                return -1;
+
+        hexdump("key", key, CHACHA_KEYLEN);
+        hexdump("nonce", nonce, CHACHA_NONCELEN);
+        hexdump("in", in, inlen);
+        hexdump("aad", aad, aad_len);
 
         length.aad_octets = aad_len;
         length.ciphertext_octets = inlen;
@@ -41,7 +50,7 @@ chacha20_poly1305_enc(const uint8_t key[CHACHA_KEYLEN],
 
         hexdump("after chacha init",
                 ctx.chacha20_state, sizeof(ctx.chacha20_state));
-        
+
         init_poly1305(&ctx);
         hexdump("after poly init",
                 &ctx.poly1305_state, sizeof(ctx.poly1305_state));
@@ -80,14 +89,28 @@ chacha20_poly1305_enc(const uint8_t key[CHACHA_KEYLEN],
         }
 
         if (inlen) {
-                uint8_t pad[POLY1305_BLOCK_SIZE];
 
                 chacha20_block(out, in, inlen, ctx.chacha20_state);
-                for (unsigned i = inlen; i < POLY1305_BLOCK_SIZE; i++)
-                        pad[i] = 0;
-                poly1305_update(&ctx.poly1305_state, pad, sizeof(pad));
+                while (inlen >= POLY1305_BLOCK_SIZE) {
+                        poly1305_update(&ctx.poly1305_state,
+                                        out,
+                                        POLY1305_BLOCK_SIZE);
+                        out += POLY1305_BLOCK_SIZE;
+                        inlen -= POLY1305_BLOCK_SIZE;
+                }
+
+                if (inlen) {
+                        uint8_t pad[POLY1305_BLOCK_SIZE];
+
+                        memcpy(pad, out, inlen);
+                        for (unsigned i = inlen; i < POLY1305_BLOCK_SIZE; i++)
+                                pad[i] = 0;
+                        poly1305_update(&ctx.poly1305_state, pad, sizeof(pad));
+                }
         }
+
         poly1305_update(&ctx.poly1305_state,
                         (const uint8_t *) &length, sizeof(length));
         poly1305_finish(&ctx.poly1305_state, tag);
+        return 0;
 }

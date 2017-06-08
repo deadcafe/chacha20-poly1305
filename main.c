@@ -207,9 +207,9 @@ static const struct test_vector_s test_vectores[] = {
  *
  ******************************************************************************/
 
-/*******************************************************************************
+/******************************************************************************
  *
- *******************************************************************************/
+ ******************************************************************************/
 static void
 test_chacha(const struct test_vector_s *vec)
 {
@@ -261,12 +261,13 @@ test_chachapoly(const struct test_vector_s *vec)
         uint8_t cipher[vec->Plen];
         uint8_t mac[16];
 
-        chacha20_poly1305_enc(vec->K,
-                              vec->N,
-                              cipher,
-                              vec->P, vec->Plen,
-                              vec->A, vec->Alen,
-                              mac);
+        aead_chacha20_poly1305(vec->K,
+                               CIPHER_DIR_ENCRYPT,
+                               vec->N,
+                               cipher,
+                               vec->P, vec->Plen,
+                               vec->A, vec->Alen,
+                               mac);
         if (memcmp(cipher, vec->C, vec->Plen))
                 fprintf(stderr, "mismatched cipher\n");
         else
@@ -278,14 +279,17 @@ test_chachapoly(const struct test_vector_s *vec)
                 fprintf(stderr, "matched mac\n");
 }
 
-/*******************************************************************************
+/******************************************************************************
  *
- *******************************************************************************/
+ ******************************************************************************/
 int
 main(void)
 {
         test_chacha(&test_vectores[0]);
         test_poly(&test_vectores[1]);
+
+
+        fprintf(stderr, "\n\n");
         test_chachapoly(&test_vectores[2]);
 
         return 0;
