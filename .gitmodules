@@ -4,3 +4,6 @@
 [submodule "chacha-opt"]
 	path = chacha-opt
 	url = git@github.com:floodyberry/chacha-opt.git
+[submodule "poly1305-opt"]
+	path = poly1305-opt
+	url = git@github.com:floodyberry/poly1305-opt.git
