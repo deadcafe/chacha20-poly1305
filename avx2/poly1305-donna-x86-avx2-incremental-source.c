@@ -59,7 +59,7 @@ FN(poly1305_block_size)(void)
 }
 
 /* copy 0-63 bytes */
-static inline void __attribute__((always_inline)) 
+static inline void __attribute__((always_inline))
 poly1305_block_copy63(uint8_t *dst,
                       const uint8_t *src,
                       size_t bytes)
@@ -116,15 +116,15 @@ FN(poly1305_init_ext)(poly1305_state_internal_t *st,
 	r0 = t0 & 0x3ffffff;
         t0 >>= 26;
         t0 |= t1 << 6;
-        
+
 	r1 = t0 & 0x3ffff03;
         t1 >>= 20;
         t1 |= t2 << 12;
-        
+
 	r2 = t1 & 0x3ffc0ff;
         t2 >>= 14;
         t2 |= t3 << 18;
-        
+
 	r3 = t2 & 0x3f03fff;
         t3 >>= 8;
 	r4 = t3 & 0x00fffff;
@@ -329,7 +329,7 @@ FN(poly1305_init_ext)(poly1305_state_internal_t *st,
                         T0 = _mm_and_si128(T0, MMASK);
                         T3 = _mm_and_si128(T3, MMASK);
                         T1 = _mm_add_epi64(T1, C1);
-                        T4 = _mm_add_epi64(T4, C2); 
+                        T4 = _mm_add_epi64(T4, C2);
 
                         C1 = _mm_srli_epi64(T1, 26);
                         C2 = _mm_srli_epi64(T4, 26);
@@ -337,7 +337,7 @@ FN(poly1305_init_ext)(poly1305_state_internal_t *st,
                         T4 = _mm_and_si128(T4, MMASK);
                         T2 = _mm_add_epi64(T2, C1);
                         T0 = _mm_add_epi64(T0, _mm_mul_epu32(C2, FIVE));
-                        
+
 			C1 = _mm_srli_epi64(T2, 26);
                         C2 = _mm_srli_epi64(T0, 26);
                         T2 = _mm_and_si128(T2, MMASK);
@@ -410,7 +410,7 @@ FN(poly1305_blocks)(poly1305_state_internal_t *st,
 		T5 = _mm256_or_si256(_mm256_srli_epi64(T5, 52), _mm256_slli_epi64(T6, 12));
 		H2 = _mm256_and_si256(MMASK, T5);
 		H3 = _mm256_and_si256(MMASK, _mm256_srli_epi64(T5, 26));
-		H4 = _mm256_srli_epi64(T6, 40); 
+		H4 = _mm256_srli_epi64(T6, 40);
 		H4 = _mm256_or_si256(H4, HIBIT);
 		m += 64;
 		bytes -= 64;

@@ -50,6 +50,7 @@ static const struct quarter_round_s quarter_round_dic[] = {
         { 1, 5,  9, 13, },
         { 2, 6, 10, 14, },
         { 3, 7, 11, 15, },
+        
         { 0, 5, 10, 15, },
         { 1, 6, 11, 12, },
         { 2, 7,  8, 13, },
@@ -85,6 +86,7 @@ chacha_rounds(uint8_t *output,
                 QUARTERROUND( x[1], x[5], x[9],  x[13]);
                 QUARTERROUND( x[2], x[6], x[10], x[14]);
                 QUARTERROUND( x[3], x[7], x[11], x[15]);
+
                 QUARTERROUND( x[0], x[5], x[10], x[15]);
                 QUARTERROUND( x[1], x[6], x[11], x[12]);
                 QUARTERROUND( x[2], x[7], x[8],  x[13]);
